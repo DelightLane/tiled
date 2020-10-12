@@ -43,6 +43,9 @@
 #include <QMenu>
 #include <QFileInfo>
 
+#include <qdesktopservices.h>
+#include <projectmanager.h>
+
 namespace Tiled {
 
 PropertiesDock::PropertiesDock(QWidget *parent)
@@ -71,6 +74,11 @@ PropertiesDock::PropertiesDock(QWidget *parent)
     connect(mActionRenameProperty, &QAction::triggered,
             this, &PropertiesDock::renameProperty);
 
+    mOpenScript = new QAction(this);
+    mOpenScript->setEnabled(false);
+    mOpenScript->setIcon(QIcon(QLatin1String(":/images/16/document-open.png")));
+    connect(mOpenScript, &QAction::triggered, this, &PropertiesDock::openScript);
+
     Utils::setThemeIcon(mActionAddProperty, "add");
     Utils::setThemeIcon(mActionRemoveProperty, "remove");
     Utils::setThemeIcon(mActionRenameProperty, "rename");
@@ -82,6 +90,7 @@ PropertiesDock::PropertiesDock(QWidget *parent)
     toolBar->addAction(mActionAddProperty);
     toolBar->addAction(mActionRemoveProperty);
     toolBar->addAction(mActionRenameProperty);
+    toolBar->addAction(mOpenScript);
 
     QWidget *widget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(widget);
@@ -162,6 +171,8 @@ void PropertiesDock::currentObjectChanged(Object *object)
 
     mPropertyBrowser->setEnabled(object);
     mActionAddProperty->setEnabled(enabled);
+
+    mOpenScript->setEnabled(enabled && mPropertyBrowser->hasTriggerEventProperty());
 }
 
 void PropertiesDock::updateActions()
@@ -322,6 +333,52 @@ void PropertiesDock::renameProperty()
     dialog->setWindowTitle(tr("Rename Property"));
     connect(dialog, &QInputDialog::textValueSelected, this, &PropertiesDock::renamePropertyTo);
     dialog->open();
+}
+
+void PropertiesDock::openScript()
+{
+    auto getEventFolderPath = [](){
+        Project &project = ProjectManager::instance()->project();
+
+        QString projectPath = project.fileName();
+        auto list = projectPath.split(QLatin1Char('/'), QString::SkipEmptyParts);
+
+        projectPath = QStringLiteral("");
+        for(auto& item : list)
+        {
+            if(item != QStringLiteral("tiled"))
+                projectPath += item + QStringLiteral("/");
+            else
+                break;
+        }
+
+        projectPath += QStringLiteral("Events/");
+
+        qDebug() << projectPath;
+
+        return projectPath;
+    };
+
+    auto getEventTriggerPaths = [&](){
+        QStringList pathList;
+        pathList.append(mPropertyBrowser->getTriggerEventStr().replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
+        pathList.append(mPropertyBrowser->getTriggerEventStr().replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
+
+        return pathList;
+    };
+    ////////////////////////////
+
+
+
+    QString projectPath = getEventFolderPath();
+    QStringList scriptPathList = getEventTriggerPaths();
+
+    for(auto scriptPath : scriptPathList)
+    {
+        qDebug() << scriptPath;
+
+        QDesktopServices::openUrl(QUrl(projectPath + scriptPath));
+    }
 }
 
 void PropertiesDock::renamePropertyTo(const QString &name)

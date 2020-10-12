@@ -66,6 +66,9 @@ public:
     void selectCustomProperty(const QString &name);
     void editCustomProperty(const QString &name);
 
+    bool hasTriggerEventProperty() const;
+    QString getTriggerEventStr() const;
+
     QSize sizeHint() const override;
 
 protected:

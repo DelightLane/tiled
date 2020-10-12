@@ -64,6 +64,7 @@ private:
     void addProperty(const QString &name, const QVariant &value);
     void removeProperties();
     void renameProperty();
+    void openScript();
     void renamePropertyTo(const QString &name);
     void showContextMenu(const QPoint &pos);
 
@@ -74,6 +75,7 @@ private:
     QAction *mActionAddProperty;
     QAction *mActionRemoveProperty;
     QAction *mActionRenameProperty;
+    QAction *mOpenScript;
 };
 
 } // namespace Tiled

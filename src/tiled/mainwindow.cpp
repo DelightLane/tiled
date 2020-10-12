@@ -2112,7 +2112,8 @@ void MainWindow::updateWindowTitle()
 
 void MainWindow::showDonationDialog()
 {
-    DonationDialog(this).exec();
+    // 도네이션 팝업 임시 제거
+    //DonationDialog(this).exec();
 }
 
 void MainWindow::aboutTiled()
