@@ -5096,6 +5096,14 @@ Please select specific format.</source>
         <source>Remove Property</source>
         <translation type="unfinished">속성 삭제</translation>
     </message>
+    <message>
+        <source>Don't Have Script File</source>
+        <translation>스크립트 파일 없음</translation>
+    </message>
+    <message>
+        <source>Do you make and open Script File?</source>
+        <translation>스크립트 파일 생성 및 오픈 하시겠습니까?</translation>
+    </message>
 </context>
 <context>
     <name>Tiled::PropertyBrowser</name>

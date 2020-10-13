@@ -5115,6 +5115,14 @@ Please select specific format.</translation>
         <source>Remove Property</source>
         <translation>Remove Property</translation>
     </message>
+    <message>
+        <source>Don't Have Script File</source>
+        <translation>Don't Have Script File</translation>
+    </message>
+    <message>
+        <source>Do you make and open Script File?</source>
+        <translation>Do you make and open Script File?</translation>
+    </message>
 </context>
 <context>
     <name>Tiled::PropertyBrowser</name>

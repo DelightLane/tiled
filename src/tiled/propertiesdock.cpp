@@ -43,8 +43,9 @@
 #include <QMenu>
 #include <QFileInfo>
 
-#include <qdesktopservices.h>
-#include <projectmanager.h>
+#include "qdesktopservices.h"
+#include "projectmanager.h"
+#include "qmessagebox.h"
 
 namespace Tiled {
 
@@ -377,7 +378,35 @@ void PropertiesDock::openScript()
     {
         qDebug() << scriptPath;
 
-        QDesktopServices::openUrl(QUrl(projectPath + scriptPath));
+        auto FullPath = projectPath + scriptPath;
+
+        bool successOpen = QDesktopServices::openUrl(QUrl(FullPath));
+        if(!successOpen)
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Don't Have Script File"));
+            msgBox.setText(tr("Do you make and open Script File?")+QStringLiteral("\n\n")+scriptPath);
+            msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Ok);
+            auto ret = msgBox.exec();
+            switch (ret)
+            {
+            case QMessageBox::Ok:
+            {
+                QFile file(FullPath);
+                file.open(QIODevice::WriteOnly);
+                file.close();
+
+                QDesktopServices::openUrl(QUrl(FullPath));
+                break;
+            }
+            case QMessageBox::Cancel:
+            {
+                msgBox.close();
+                break;
+            }
+            }
+        }
     }
 }
 
