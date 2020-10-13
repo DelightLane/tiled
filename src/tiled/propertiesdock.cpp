@@ -173,7 +173,7 @@ void PropertiesDock::currentObjectChanged(Object *object)
     mPropertyBrowser->setEnabled(object);
     mActionAddProperty->setEnabled(enabled);
 
-    mOpenScript->setEnabled(enabled && mPropertyBrowser->hasTriggerEventProperty());
+    mOpenScript->setEnabled(enabled && hasTriggerEventProperty());
 }
 
 void PropertiesDock::updateActions()
@@ -338,32 +338,15 @@ void PropertiesDock::renameProperty()
 
 void PropertiesDock::openScript()
 {
-    auto getEventFolderPath = [](){
-        Project &project = ProjectManager::instance()->project();
-
-        QString projectPath = project.fileName();
-        auto list = projectPath.split(QLatin1Char('/'), QString::SkipEmptyParts);
-
-        projectPath = QStringLiteral("");
-        for(auto& item : list)
-        {
-            if(item != QStringLiteral("tiled"))
-                projectPath += item + QStringLiteral("/");
-            else
-                break;
-        }
-
-        projectPath += QStringLiteral("Events/");
-
-        qDebug() << projectPath;
-
-        return projectPath;
-    };
-
     auto getEventTriggerPaths = [&](){
+        auto object = mDocument->currentObject();
+        QVariant property = object->property(QStringLiteral("triggerEvent"));
+        if(property.isNull())
+            return QStringList();
+
         QStringList pathList;
-        pathList.append(mPropertyBrowser->getTriggerEventStr().replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
-        pathList.append(mPropertyBrowser->getTriggerEventStr().replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
+        pathList.append(property.toString().replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
+        pathList.append(property.toString().replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
 
         return pathList;
     };
@@ -371,7 +354,7 @@ void PropertiesDock::openScript()
 
 
 
-    QString projectPath = getEventFolderPath();
+    QString projectPath = ProjectManager::instance()->project().getEventFolderPath();
     QStringList scriptPathList = getEventTriggerPaths();
 
     for(auto scriptPath : scriptPathList)
@@ -614,6 +597,13 @@ void PropertiesDock::retranslateUi()
 
     mActionRenameProperty->setText(tr("Rename..."));
     mActionRenameProperty->setToolTip(tr("Rename Property"));
+}
+
+bool PropertiesDock::hasTriggerEventProperty() const
+{
+    auto object = mDocument->currentObject();
+    QVariant property = object->property(QStringLiteral("triggerEvent"));
+    return !property.isNull();
 }
 
 } // namespace Tiled

@@ -70,6 +70,8 @@ private:
 
     void retranslateUi();
 
+    bool hasTriggerEventProperty() const;
+
     Document *mDocument;
     PropertyBrowser *mPropertyBrowser;
     QAction *mActionAddProperty;

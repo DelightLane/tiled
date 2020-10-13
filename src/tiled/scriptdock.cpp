@@ -52,35 +52,14 @@ void ScriptDock::setDocument(Document *document)
 
 void ScriptDock::currentObjectChanged(Object *object)
 {
-    auto getEventFolderPath = [](){
-        Project &project = ProjectManager::instance()->project();
-
-        QString projectPath = project.fileName();
-        auto list = projectPath.split(QLatin1Char('/'), QString::SkipEmptyParts);
-
-        projectPath = QStringLiteral("");
-        for(auto& item : list)
-        {
-            if(item != QStringLiteral("tiled"))
-                projectPath += item + QStringLiteral("/");
-            else
-                break;
-        }
-
-        projectPath += QStringLiteral("Events/");
-
-        return projectPath;
-    };
-
     auto getEventTriggerPaths = [&](const QVariant& property){
         if(!object)
             return QStringList();
 
-        QString triggerPath = property.toString();
-
         QStringList pathList;
-        pathList.append(triggerPath.replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
-        pathList.append(triggerPath.replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
+
+        pathList.append(property.toString().replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
+        pathList.append(property.toString().replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
 
         return pathList;
     };
@@ -95,7 +74,7 @@ void ScriptDock::currentObjectChanged(Object *object)
     if(property.isNull())
         return;
 
-    QString projectPath = getEventFolderPath();
+    QString projectPath = ProjectManager::instance()->project().getEventFolderPath();
     QStringList scriptPathList = getEventTriggerPaths(property);
 
     for(auto scriptPath : scriptPathList)

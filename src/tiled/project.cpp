@@ -144,4 +144,24 @@ void Project::removeFolder(int index)
     mFolders.removeAt(index);
 }
 
+QString Project::getEventFolderPath() const
+{
+    QString projectPath = fileName();
+    auto list = projectPath.split(QLatin1Char('/'), QString::SkipEmptyParts);
+
+    projectPath = QStringLiteral("");
+    for(auto& item : list)
+    {
+        if(item != QStringLiteral("tiled"))
+            projectPath += item + QStringLiteral("/");
+        else
+            break;
+    }
+
+    projectPath += QStringLiteral("Events/");
+
+    return projectPath;
+};
+
+
 } // namespace Tiled

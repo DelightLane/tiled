@@ -44,6 +44,8 @@ public:
 
     const QDateTime &lastSaved() const;
 
+    QString getEventFolderPath() const;
+
     QString mExtensionsPath;
     QString mObjectTypesFile;
     QString mAutomappingRulesFile;

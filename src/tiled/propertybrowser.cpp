@@ -249,21 +249,6 @@ void PropertyBrowser::editCustomProperty(const QString &name)
         editItem(propertyItems.first());
 }
 
-bool PropertyBrowser::hasTriggerEventProperty() const
-{
-    QtVariantProperty *property = mNameToProperty.value(QStringLiteral("triggerEvent"));
-    return property != nullptr;
-}
-
-QString PropertyBrowser::getTriggerEventStr() const
-{
-    QtVariantProperty *property = mNameToProperty.value(QStringLiteral("triggerEvent"));
-    if(!property)
-        return QStringLiteral("");
-
-    return property->value().toString();
-}
-
 QSize PropertyBrowser::sizeHint() const
 {
     return Utils::dpiScaled(QSize(260, 100));
