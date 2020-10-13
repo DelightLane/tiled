@@ -4619,6 +4619,14 @@ Please select specific format.</translation>
     </message>
 </context>
 <context>
+    <name>Tiled::ScriptDock</name>
+    <message>
+        <location filename="../src/tiled/scriptdock.cpp" line="+59"/>
+        <source>triggerEvent</source>
+        <translation>triggerEvent</translation>
+    </message>
+</context>
+<context>
     <name>Tiled::NewMapDialog</name>
     <message>
         <location filename="../src/tiled/newmapdialog.cpp" line="-95"/>

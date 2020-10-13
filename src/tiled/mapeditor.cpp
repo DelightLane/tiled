@@ -83,6 +83,7 @@
 #include "zoomable.h"
 #include "worldmovemaptool.h"
 #include "worldmanager.h"
+#include "scriptdock.h"
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -240,6 +241,7 @@ MapEditor::MapEditor(QObject *parent)
     mPropertiesDock = new PropertiesDock(mMainWindow);
     mTemplatesDock->setPropertiesDock(mPropertiesDock);
     mTileStampsDock = new TileStampsDock(mTileStampManager, mMainWindow);
+    mScriptDock = new ScriptDock(mMainWindow);
 
     resetLayout();
 
@@ -403,6 +405,7 @@ void MapEditor::setCurrentDocument(Document *document)
     mTerrainDock->setDocument(mapDocument);
     mWangDock->setDocument(mapDocument);
     mMiniMapDock->setMapDocument(mapDocument);
+    mScriptDock->setDocument(mapDocument);
 
     if (mapDocument) {
         connect(mapDocument, &MapDocument::currentLayerChanged,
@@ -486,7 +489,8 @@ QList<QDockWidget *> MapEditor::dockWidgets() const
         mTerrainDock,
         mWangDock,
         mMiniMapDock,
-        mTileStampsDock
+        mTileStampsDock,
+        mScriptDock
     };
 }
 
@@ -580,6 +584,8 @@ void MapEditor::resetLayout()
     mMainWindow->addDockWidget(Qt::RightDockWidgetArea, mLayerDock);
     mMainWindow->addDockWidget(Qt::RightDockWidgetArea, mObjectsDock);
     mMainWindow->addDockWidget(Qt::RightDockWidgetArea, mMiniMapDock);
+    mMainWindow->addDockWidget(Qt::RightDockWidgetArea, mScriptDock);
+    mMainWindow->tabifyDockWidget(mScriptDock, mMiniMapDock);
     mMainWindow->tabifyDockWidget(mMiniMapDock, mObjectsDock);
     mMainWindow->tabifyDockWidget(mObjectsDock, mLayerDock);
 

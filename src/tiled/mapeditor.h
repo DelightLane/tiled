@@ -70,6 +70,7 @@ class UndoDock;
 class WangBrush;
 class WangDock;
 class Zoomable;
+class ScriptDock;
 
 class MapEditor : public Editor
 {
@@ -178,6 +179,7 @@ private:
     WangDock *mWangDock;
     MiniMapDock* mMiniMapDock;
     TileStampsDock *mTileStampsDock;
+    ScriptDock *mScriptDock;
 
     std::unique_ptr<TreeViewComboBox> mLayerComboBox;
     ComboBoxProxyModel *mComboBoxProxyModel;
