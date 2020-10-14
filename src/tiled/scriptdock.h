@@ -24,10 +24,16 @@ private:
     void updateActions();
     QStringList ScriptDock::getEventTriggerPaths() const;
     void openScript();
+    void openGameConfig();
+    void openModeConfig();
     void runGame();
+
+    QString convertText2Html(QString In);
 
 private:
     QAction *mOpenScript;
+    QAction *mOpenGameConfig;
+    QAction *mOpenModeConfig;
     QAction *mRunGame;
 
     Document* mDocument = nullptr;

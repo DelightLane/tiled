@@ -25,6 +25,16 @@ ScriptDock::ScriptDock(QWidget *parent): QDockWidget(parent),
     mOpenScript->setIcon(QIcon(QLatin1String(":/images/16/document-open.png")));
     connect(mOpenScript, &QAction::triggered, this, &ScriptDock::openScript);
 
+    mOpenGameConfig = new QAction(this);
+    mOpenGameConfig->setEnabled(true);
+    mOpenGameConfig->setIcon(QIcon(QLatin1String(":/images/16/document-page-setup.png")));
+    connect(mOpenGameConfig, &QAction::triggered, this, &ScriptDock::openGameConfig);
+
+    mOpenModeConfig = new QAction(this);
+    mOpenModeConfig->setEnabled(true);
+    mOpenModeConfig->setIcon(QIcon(QLatin1String(":/images/16/document-properties.png")));
+    connect(mOpenModeConfig, &QAction::triggered, this, &ScriptDock::openModeConfig);
+
     mRunGame = new QAction(this);
     mRunGame->setEnabled(true);
     mRunGame->setIcon(QIcon(QLatin1String(":/images/16/simulate.png")));
@@ -35,6 +45,8 @@ ScriptDock::ScriptDock(QWidget *parent): QDockWidget(parent),
     toolBar->setMovable(false);
     toolBar->setIconSize(Utils::smallIconSize());
     toolBar->addAction(mOpenScript);
+    toolBar->addAction(mOpenGameConfig);
+    toolBar->addAction(mOpenModeConfig);
     toolBar->addAction(mRunGame);
 
     QVBoxLayout *listAndToolBar = new QVBoxLayout;
@@ -87,7 +99,7 @@ void ScriptDock::currentObjectChanged(Object *object)
 
 
     mOpenScript->setEnabled(false);
-    mTextBrowser->setText(QStringLiteral(""));
+    mTextBrowser->setHtml(QStringLiteral(""));
 
     if(!object)
         return;
@@ -114,7 +126,7 @@ void ScriptDock::currentObjectChanged(Object *object)
 
         QTextStream in(&file);
         in.setCodec("UTF-8");
-        mTextBrowser->setText(in.readAll());
+        mTextBrowser->setHtml(convertText2Html(in.readAll()));
         file.close();
 
         return;
@@ -181,12 +193,64 @@ void ScriptDock::openScript()
     }
 }
 
+void ScriptDock::openGameConfig()
+{
+    QDesktopServices::openUrl(QUrl(ProjectManager::instance()->project().getProjectFolderPath() + QStringLiteral("gameConfig.lua")));
+}
+
+void ScriptDock::openModeConfig()
+{
+    QDesktopServices::openUrl(QUrl(ProjectManager::instance()->project().getProjectFolderPath() + QStringLiteral("modeConfig.lua")));
+}
+
 void ScriptDock::runGame()
 {
     QString arg = QStringLiteral("\"") + ProjectManager::instance()->project().getProjectFolderPath() + QStringLiteral("\"");
 
     QDir::setCurrent(ProjectManager::instance()->project().mCoronaSdkPath);
     QProcess::startDetached(QStringLiteral("Corona.Shell.exe ") + arg);
+}
+
+QString ScriptDock::convertText2Html(QString in)
+{
+    auto insertTag = [](QString in, QString fromHead, QString toHtmlTagHead, QString fromTail, QString toHtmlTagTail){
+        int findIdx = in.indexOf(fromHead, 0);
+        while(findIdx != -1)
+        {
+            bool isHead = findIdx == 0 || (in.at(findIdx - 1) == QStringLiteral(">") && in.at(findIdx - 2) == QStringLiteral("r")); // 제일 앞이거나 <br> 뒤 일때만
+            if(isHead)
+            {
+                in = in.replace(findIdx, fromHead.size(), toHtmlTagHead);
+
+                findIdx = in.indexOf(fromTail, findIdx);
+                if(findIdx != -1)
+                    in = in.replace(findIdx, fromTail.size(), toHtmlTagTail);
+                else
+                    in += toHtmlTagTail;
+            }
+            else
+            {
+                ++findIdx;
+            }
+
+            findIdx = in.indexOf(fromHead, findIdx);
+        }
+
+        return in;
+    };
+
+
+
+    //////////////////////////
+
+    in = in.replace(QStringLiteral("\n"), QStringLiteral("<br>"));
+    in = insertTag(in, QStringLiteral("?"), QStringLiteral("<font color=\"DodgerBlue\">?"), QStringLiteral("<br>"), QStringLiteral("</font><br>"));
+    in = insertTag(in, QStringLiteral("@"), QStringLiteral("<font color=\"Tomato\">@"), QStringLiteral("<br>"), QStringLiteral("</font><br>"));
+    in = insertTag(in, QStringLiteral("+"), QStringLiteral("<font color=\"Orange\">+"), QStringLiteral("<br>"), QStringLiteral("</font><br>"));
+
+    qDebug() << in;
+
+    return in;
 }
 
 void ScriptDock::retranslateUi()
