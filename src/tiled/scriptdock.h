@@ -22,8 +22,11 @@ private:
 
     void currentObjectChanged(Object *object);
     void updateActions();
+    void openScript();
 
 private:
+    QAction *mOpenScript;
+
     Document* mDocument = nullptr;
 
     QTextBrowser* mTextBrowser;

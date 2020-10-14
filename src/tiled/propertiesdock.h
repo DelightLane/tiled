@@ -64,20 +64,16 @@ private:
     void addProperty(const QString &name, const QVariant &value);
     void removeProperties();
     void renameProperty();
-    void openScript();
     void renamePropertyTo(const QString &name);
     void showContextMenu(const QPoint &pos);
 
     void retranslateUi();
-
-    bool hasTriggerEventProperty() const;
 
     Document *mDocument;
     PropertyBrowser *mPropertyBrowser;
     QAction *mActionAddProperty;
     QAction *mActionRemoveProperty;
     QAction *mActionRenameProperty;
-    QAction *mOpenScript;
 };
 
 } // namespace Tiled

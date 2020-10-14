@@ -43,10 +43,6 @@
 #include <QMenu>
 #include <QFileInfo>
 
-#include "qdesktopservices.h"
-#include "projectmanager.h"
-#include "qmessagebox.h"
-
 namespace Tiled {
 
 PropertiesDock::PropertiesDock(QWidget *parent)
@@ -75,11 +71,6 @@ PropertiesDock::PropertiesDock(QWidget *parent)
     connect(mActionRenameProperty, &QAction::triggered,
             this, &PropertiesDock::renameProperty);
 
-    mOpenScript = new QAction(this);
-    mOpenScript->setEnabled(false);
-    mOpenScript->setIcon(QIcon(QLatin1String(":/images/16/document-open.png")));
-    connect(mOpenScript, &QAction::triggered, this, &PropertiesDock::openScript);
-
     Utils::setThemeIcon(mActionAddProperty, "add");
     Utils::setThemeIcon(mActionRemoveProperty, "remove");
     Utils::setThemeIcon(mActionRenameProperty, "rename");
@@ -91,7 +82,6 @@ PropertiesDock::PropertiesDock(QWidget *parent)
     toolBar->addAction(mActionAddProperty);
     toolBar->addAction(mActionRemoveProperty);
     toolBar->addAction(mActionRenameProperty);
-    toolBar->addAction(mOpenScript);
 
     QWidget *widget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(widget);
@@ -172,8 +162,6 @@ void PropertiesDock::currentObjectChanged(Object *object)
 
     mPropertyBrowser->setEnabled(object);
     mActionAddProperty->setEnabled(enabled);
-
-    mOpenScript->setEnabled(enabled && hasTriggerEventProperty());
 }
 
 void PropertiesDock::updateActions()
@@ -334,63 +322,6 @@ void PropertiesDock::renameProperty()
     dialog->setWindowTitle(tr("Rename Property"));
     connect(dialog, &QInputDialog::textValueSelected, this, &PropertiesDock::renamePropertyTo);
     dialog->open();
-}
-
-void PropertiesDock::openScript()
-{
-    auto getEventTriggerPaths = [&](){
-        auto object = mDocument->currentObject();
-        QVariant property = object->property(QStringLiteral("triggerEvent"));
-        if(property.isNull())
-            return QStringList();
-
-        QStringList pathList;
-        pathList.append(property.toString().replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
-        pathList.append(property.toString().replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
-
-        return pathList;
-    };
-    ////////////////////////////
-
-
-
-    QString projectPath = ProjectManager::instance()->project().getEventFolderPath();
-    QStringList scriptPathList = getEventTriggerPaths();
-
-    for(auto scriptPath : scriptPathList)
-    {
-        qDebug() << scriptPath;
-
-        auto FullPath = projectPath + scriptPath;
-
-        bool successOpen = QDesktopServices::openUrl(QUrl(FullPath));
-        if(!successOpen)
-        {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle(tr("Don't Have Script File"));
-            msgBox.setText(tr("Do you make and open Script File?")+QStringLiteral("\n\n")+scriptPath);
-            msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-            msgBox.setDefaultButton(QMessageBox::Ok);
-            auto ret = msgBox.exec();
-            switch (ret)
-            {
-            case QMessageBox::Ok:
-            {
-                QFile file(FullPath);
-                file.open(QIODevice::WriteOnly);
-                file.close();
-
-                QDesktopServices::openUrl(QUrl(FullPath));
-                break;
-            }
-            case QMessageBox::Cancel:
-            {
-                msgBox.close();
-                break;
-            }
-            }
-        }
-    }
 }
 
 void PropertiesDock::renamePropertyTo(const QString &name)
@@ -597,13 +528,6 @@ void PropertiesDock::retranslateUi()
 
     mActionRenameProperty->setText(tr("Rename..."));
     mActionRenameProperty->setToolTip(tr("Rename Property"));
-}
-
-bool PropertiesDock::hasTriggerEventProperty() const
-{
-    auto object = mDocument->currentObject();
-    QVariant property = object->property(QStringLiteral("triggerEvent"));
-    return !property.isNull();
 }
 
 } // namespace Tiled
