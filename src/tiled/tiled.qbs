@@ -424,7 +424,6 @@ QtGuiApplication {
         "reversingrecursivefiltermodel.h",
         "rotatemapobject.cpp",
         "rotatemapobject.h",
-        "scriptViewer.ui",
         "scriptdock.cpp",
         "scriptdock.h",
         "scriptedaction.cpp",
