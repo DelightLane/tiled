@@ -68,16 +68,11 @@ void ScriptDock::setDocument(Document *document)
 
 void ScriptDock::currentObjectChanged(Object *object)
 {
-    auto getEventTriggerPaths = [&](const QVariant& property){
-        if(!object)
-            return QStringList();
+    auto sortMethod = [](const QString& lhs, const QString& rhs){
+            if(lhs.contains(QStringLiteral("sc")))
+                return true;
 
-        QStringList pathList;
-
-        pathList.append(property.toString().replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
-        pathList.append(property.toString().replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
-
-        return pathList;
+            return false;
     };
     ////////////////////////////
 
@@ -99,7 +94,9 @@ void ScriptDock::currentObjectChanged(Object *object)
     mOpenScript->setEnabled(enabled);
 
     QString projectPath = ProjectManager::instance()->project().getEventFolderPath();
-    QStringList scriptPathList = getEventTriggerPaths(property);
+    QStringList scriptPathList = getEventTriggerPaths();
+
+    std::sort(scriptPathList.begin(), scriptPathList.end(), sortMethod);
 
     for(auto scriptPath : scriptPathList)
     {
@@ -121,24 +118,22 @@ void ScriptDock::updateActions()
 
 }
 
+QStringList ScriptDock::getEventTriggerPaths() const
+{
+    auto object = mDocument->currentObject();
+    QVariant property = object->property(QStringLiteral("triggerEvent"));
+    if(property.isNull())
+        return QStringList();
+
+    QStringList pathList;
+    pathList.append(property.toString().replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
+    pathList.append(property.toString().replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
+
+    return pathList;
+};
+
 void ScriptDock::openScript()
 {
-    auto getEventTriggerPaths = [&](){
-        auto object = mDocument->currentObject();
-        QVariant property = object->property(QStringLiteral("triggerEvent"));
-        if(property.isNull())
-            return QStringList();
-
-        QStringList pathList;
-        pathList.append(property.toString().replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
-        pathList.append(property.toString().replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
-
-        return pathList;
-    };
-    ////////////////////////////
-
-
-
     QString projectPath = ProjectManager::instance()->project().getEventFolderPath();
     QStringList scriptPathList = getEventTriggerPaths();
 

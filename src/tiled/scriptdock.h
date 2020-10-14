@@ -22,6 +22,7 @@ private:
 
     void currentObjectChanged(Object *object);
     void updateActions();
+    QStringList ScriptDock::getEventTriggerPaths() const;
     void openScript();
 
 private:
