@@ -64,6 +64,11 @@ bool Project::save(const QString &fileName)
     if (mFileName.isEmpty() && extensionsPath.isEmpty())
         extensionsPath = QFileInfo(fileName).dir().filePath(QLatin1String("extensions"));
 
+    QString coronaSdkPath = mCoronaSdkPath;
+
+    if (mFileName.isEmpty() && coronaSdkPath.isEmpty())
+        coronaSdkPath = QStringLiteral("C:\\Program Files (x86)\\Corona Labs\Corona");
+
     const QDir dir = QFileInfo(fileName).dir();
 
     QJsonArray folders;
@@ -79,6 +84,7 @@ bool Project::save(const QString &fileName)
         { QStringLiteral("extensionsPath"), relative(dir, extensionsPath) },
         { QStringLiteral("objectTypesFile"), dir.relativeFilePath(mObjectTypesFile) },
         { QStringLiteral("automappingRulesFile"), dir.relativeFilePath(mAutomappingRulesFile) },
+        { QStringLiteral("coronaSdkPath"), coronaSdkPath },
         { QStringLiteral("commands"), commands }
     };
 
@@ -95,6 +101,7 @@ bool Project::save(const QString &fileName)
     mLastSaved = QFileInfo(fileName).lastModified();
     mFileName = fileName;
     mExtensionsPath = extensionsPath;
+    mCoronaSdkPath = coronaSdkPath;
     return true;
 }
 
@@ -119,6 +126,7 @@ bool Project::load(const QString &fileName)
     mExtensionsPath = absolute(dir, project.value(QLatin1String("extensionsFolder")).toString(QLatin1String("extensions")));
     mObjectTypesFile = absolute(dir, project.value(QLatin1String("objectTypesFile")).toString());
     mAutomappingRulesFile = absolute(dir, project.value(QLatin1String("automappingRulesFile")).toString());
+    mCoronaSdkPath = absolute(dir, project.value(QLatin1String("coronaSdkPath")).toString());
 
     mFolders.clear();
     const QJsonArray folders = project.value(QLatin1String("folders")).toArray();
@@ -144,7 +152,7 @@ void Project::removeFolder(int index)
     mFolders.removeAt(index);
 }
 
-QString Project::getEventFolderPath() const
+QString Project::getProjectFolderPath() const
 {
     QString projectPath = fileName();
     auto list = projectPath.split(QLatin1Char('/'), QString::SkipEmptyParts);
@@ -158,9 +166,12 @@ QString Project::getEventFolderPath() const
             break;
     }
 
-    projectPath += QStringLiteral("Events/");
-
     return projectPath;
+}
+
+QString Project::getEventFolderPath() const
+{
+    return getProjectFolderPath() + QStringLiteral("Events/");
 };
 
 

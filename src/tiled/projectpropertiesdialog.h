@@ -49,6 +49,7 @@ private:
     QtVariantProperty *mExtensionPathProperty;
     QtVariantProperty *mObjectTypesFileProperty;
     QtVariantProperty *mAutomappingRulesFileProperty;
+    QtVariantProperty *mCoronaSdkPathProperty;
 };
 
 } // namespace Tiled

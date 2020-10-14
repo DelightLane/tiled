@@ -24,9 +24,11 @@ private:
     void updateActions();
     QStringList ScriptDock::getEventTriggerPaths() const;
     void openScript();
+    void runGame();
 
 private:
     QAction *mOpenScript;
+    QAction *mRunGame;
 
     Document* mDocument = nullptr;
 

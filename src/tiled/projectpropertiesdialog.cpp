@@ -66,6 +66,13 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project &project, QWidget *pare
     filesGroupProperty->addSubProperty(mAutomappingRulesFileProperty);
 
     ui->propertyBrowser->addProperty(filesGroupProperty);
+
+    auto coronaSdkGroupProperty = groupPropertyManager->addProperty(tr("Corona Sdk"));
+    mCoronaSdkPathProperty = variantPropertyManager->addProperty(filePathTypeId(), tr("Corona Sdk path"));
+    mCoronaSdkPathProperty->setValue(project.mCoronaSdkPath);
+    mCoronaSdkPathProperty->setAttribute(QStringLiteral("directory"), true);
+    coronaSdkGroupProperty->addSubProperty(mCoronaSdkPathProperty);
+    ui->propertyBrowser->addProperty(coronaSdkGroupProperty);
 }
 
 ProjectPropertiesDialog::~ProjectPropertiesDialog()
@@ -78,6 +85,7 @@ void ProjectPropertiesDialog::accept()
     mProject.mExtensionsPath = mExtensionPathProperty->value().toString();
     mProject.mObjectTypesFile = mObjectTypesFileProperty->value().toString();
     mProject.mAutomappingRulesFile = mAutomappingRulesFileProperty->value().toString();
+    mProject.mCoronaSdkPath = mCoronaSdkPathProperty->value().toString();
 
     QDialog::accept();
 }

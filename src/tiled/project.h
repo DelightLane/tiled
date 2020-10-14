@@ -44,11 +44,13 @@ public:
 
     const QDateTime &lastSaved() const;
 
+    QString getProjectFolderPath() const;
     QString getEventFolderPath() const;
 
     QString mExtensionsPath;
     QString mObjectTypesFile;
     QString mAutomappingRulesFile;
+    QString mCoronaSdkPath;
     QVector<Command> mCommands;
 
 private:

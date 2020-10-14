@@ -6,6 +6,8 @@
 #include <utils.h>
 #include <qdesktopservices.h>
 #include <qmessagebox.h>
+#include <qprocess.h>
+#include <qdir.h>
 
 using namespace Tiled;
 
@@ -23,11 +25,17 @@ ScriptDock::ScriptDock(QWidget *parent): QDockWidget(parent),
     mOpenScript->setIcon(QIcon(QLatin1String(":/images/16/document-open.png")));
     connect(mOpenScript, &QAction::triggered, this, &ScriptDock::openScript);
 
+    mRunGame = new QAction(this);
+    mRunGame->setEnabled(true);
+    mRunGame->setIcon(QIcon(QLatin1String(":/images/16/simulate.png")));
+    connect(mRunGame, &QAction::triggered, this, &ScriptDock::runGame);
+
     QToolBar *toolBar = new QToolBar;
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(Utils::smallIconSize());
     toolBar->addAction(mOpenScript);
+    toolBar->addAction(mRunGame);
 
     QVBoxLayout *listAndToolBar = new QVBoxLayout;
     listAndToolBar->setSpacing(0);
@@ -171,6 +179,14 @@ void ScriptDock::openScript()
             }
         }
     }
+}
+
+void ScriptDock::runGame()
+{
+    QString arg = QStringLiteral("\"") + ProjectManager::instance()->project().getProjectFolderPath() + QStringLiteral("\"");
+
+    QDir::setCurrent(ProjectManager::instance()->project().mCoronaSdkPath);
+    QProcess::startDetached(QStringLiteral("Corona.Shell.exe ") + arg);
 }
 
 void ScriptDock::retranslateUi()
