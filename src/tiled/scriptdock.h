@@ -23,6 +23,8 @@ private:
     void currentObjectChanged(Object *object);
     void updateActions();
     QStringList ScriptDock::getEventTriggerPaths() const;
+
+    void refreshScript();
     void openScript();
     void openGameConfig();
     void openModeConfig();
@@ -31,6 +33,7 @@ private:
     QString convertText2Html(QString In);
 
 private:
+    QAction *mRefreshScript;
     QAction *mOpenScript;
     QAction *mOpenGameConfig;
     QAction *mOpenModeConfig;

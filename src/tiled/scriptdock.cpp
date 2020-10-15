@@ -20,6 +20,11 @@ ScriptDock::ScriptDock(QWidget *parent): QDockWidget(parent),
     QVBoxLayout *layout = new QVBoxLayout(widget);
     layout->setMargin(0);
 
+    mRefreshScript = new QAction(this);
+    mRefreshScript->setEnabled(true);
+    mRefreshScript->setIcon(QIcon(QLatin1String(":/images/16/help-about.png")));
+    connect(mRefreshScript, &QAction::triggered, this, &ScriptDock::refreshScript);
+
     mOpenScript = new QAction(this);
     mOpenScript->setEnabled(false);
     mOpenScript->setIcon(QIcon(QLatin1String(":/images/16/document-open.png")));
@@ -44,6 +49,7 @@ ScriptDock::ScriptDock(QWidget *parent): QDockWidget(parent),
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(Utils::smallIconSize());
+    toolBar->addAction(mRefreshScript);
     toolBar->addAction(mOpenScript);
     toolBar->addAction(mOpenGameConfig);
     toolBar->addAction(mOpenModeConfig);
@@ -151,6 +157,11 @@ QStringList ScriptDock::getEventTriggerPaths() const
 
     return pathList;
 };
+
+void ScriptDock::refreshScript()
+{
+    currentObjectChanged(mDocument->currentObject());
+}
 
 void ScriptDock::openScript()
 {
