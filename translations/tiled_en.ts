@@ -4625,6 +4625,18 @@ Please select specific format.</translation>
         <source>triggerEvent</source>
         <translation>triggerEvent</translation>
     </message>
+    <message>
+        <source>Don't Have Script File</source>
+        <translation>Don't Have Script File</translation>
+    </message>
+    <message>
+        <source>Do you make and open Script File?</source>
+        <translation>Do you make and open Script File?</translation>
+    </message>
+    <message>
+        <source>load additional eventTrigger</source>
+        <translation>load additional eventTrigger</translation>
+    </message>
 </context>
 <context>
     <name>Tiled::NewMapDialog</name>
@@ -5122,14 +5134,6 @@ Please select specific format.</translation>
         <location line="+3"/>
         <source>Remove Property</source>
         <translation>Remove Property</translation>
-    </message>
-    <message>
-        <source>Don't Have Script File</source>
-        <translation>Don't Have Script File</translation>
-    </message>
-    <message>
-        <source>Do you make and open Script File?</source>
-        <translation>Do you make and open Script File?</translation>
     </message>
 </context>
 <context>

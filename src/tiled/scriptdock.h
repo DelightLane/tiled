@@ -22,13 +22,17 @@ private:
 
     void currentObjectChanged(Object *object);
     void updateActions();
-    QStringList ScriptDock::getEventTriggerPaths() const;
+    QStringList ScriptDock::getEventTriggerPaths(QString defTriggerEvent = QString()) const;
+    void changedAdditionalScipt(const QString& inChanged);
 
     void refreshScript();
-    void openScript();
+    void openScripts();
     void openGameConfig();
     void openModeConfig();
     void runGame();
+
+    void openScript(const QString& eventTriggerPath);
+    void readScript(const QString& eventTriggerPath);
 
     QString convertText2Html(QString In);
 
@@ -42,5 +46,6 @@ private:
     Document* mDocument = nullptr;
 
     QTextBrowser* mTextBrowser;
+    QLineEdit* mLineEdit;
 };
 }

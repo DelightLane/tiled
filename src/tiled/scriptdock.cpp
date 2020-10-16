@@ -11,8 +11,7 @@
 
 using namespace Tiled;
 
-ScriptDock::ScriptDock(QWidget *parent): QDockWidget(parent),
-    mTextBrowser(new QTextBrowser)
+ScriptDock::ScriptDock(QWidget *parent): QDockWidget(parent)
 {
     setObjectName(QLatin1String("scriptDock"));
 
@@ -28,7 +27,7 @@ ScriptDock::ScriptDock(QWidget *parent): QDockWidget(parent),
     mOpenScript = new QAction(this);
     mOpenScript->setEnabled(false);
     mOpenScript->setIcon(QIcon(QLatin1String(":/images/16/document-open.png")));
-    connect(mOpenScript, &QAction::triggered, this, &ScriptDock::openScript);
+    connect(mOpenScript, &QAction::triggered, this, &ScriptDock::openScripts);
 
     mOpenGameConfig = new QAction(this);
     mOpenGameConfig->setEnabled(true);
@@ -55,9 +54,14 @@ ScriptDock::ScriptDock(QWidget *parent): QDockWidget(parent),
     toolBar->addAction(mOpenModeConfig);
     toolBar->addAction(mRunGame);
 
+    mTextBrowser = new QTextBrowser();
+    mLineEdit = new QLineEdit();
+    mLineEdit->setPlaceholderText(tr("load additional eventTrigger"));
+    connect(mLineEdit, &QLineEdit::textChanged, this, &ScriptDock::changedAdditionalScipt);
     QVBoxLayout *listAndToolBar = new QVBoxLayout;
     listAndToolBar->setSpacing(0);
     listAndToolBar->addWidget(mTextBrowser);
+    listAndToolBar->addWidget(mLineEdit);
     listAndToolBar->addWidget(toolBar);
 
     layout->addLayout(listAndToolBar);
@@ -92,6 +96,56 @@ void ScriptDock::setDocument(Document *document)
     }
 }
 
+void ScriptDock::changedAdditionalScipt(const QString& inChangedTriggerEvent)
+{
+    QStringList scriptPathList = getEventTriggerPaths(inChangedTriggerEvent);
+
+
+    for(auto scriptPath : scriptPathList)
+    {
+        QString projectPath = ProjectManager::instance()->project().getEventFolderPath();
+        auto FullPath = projectPath + scriptPath;
+
+        QFile file(FullPath);
+        if(!file.open(QIODevice::ReadOnly))
+            continue; // 스크립트 없으면 그냥 무시
+    }
+
+    readScript(inChangedTriggerEvent);
+}
+
+void ScriptDock::readScript(const QString& eventTriggerPath)
+{
+    auto sortMethod = [](const QString& lhs, const QString& rhs){
+            if(lhs.contains(QStringLiteral("sc")))
+                return true;
+
+            return false;
+    };
+    ////////////////////////////
+
+
+
+    QString projectPath = ProjectManager::instance()->project().getEventFolderPath();
+    QStringList scriptPathList = getEventTriggerPaths(eventTriggerPath);
+
+    std::sort(scriptPathList.begin(), scriptPathList.end(), sortMethod);
+
+    for(auto scriptPath : scriptPathList)
+    {
+        QFile file(projectPath+scriptPath);
+        if (!file.open(QFile::ReadOnly | QFile::Text))
+            continue;
+
+        QTextStream in(&file);
+        in.setCodec("UTF-8");
+        mTextBrowser->setHtml(convertText2Html(in.readAll()));
+        file.close();
+
+        return;
+    }
+}
+
 void ScriptDock::currentObjectChanged(Object *object)
 {
     auto sortMethod = [](const QString& lhs, const QString& rhs){
@@ -119,24 +173,7 @@ void ScriptDock::currentObjectChanged(Object *object)
     bool enabled = object && (!isTileset || editingTileset);
     mOpenScript->setEnabled(enabled);
 
-    QString projectPath = ProjectManager::instance()->project().getEventFolderPath();
-    QStringList scriptPathList = getEventTriggerPaths();
-
-    std::sort(scriptPathList.begin(), scriptPathList.end(), sortMethod);
-
-    for(auto scriptPath : scriptPathList)
-    {
-        QFile file(projectPath+scriptPath);
-        if (!file.open(QFile::ReadOnly | QFile::Text))
-            continue;
-
-        QTextStream in(&file);
-        in.setCodec("UTF-8");
-        mTextBrowser->setHtml(convertText2Html(in.readAll()));
-        file.close();
-
-        return;
-    }
+    readScript(QString());
 }
 
 void ScriptDock::updateActions()
@@ -144,16 +181,21 @@ void ScriptDock::updateActions()
 
 }
 
-QStringList ScriptDock::getEventTriggerPaths() const
+QStringList ScriptDock::getEventTriggerPaths(QString defTriggerEvent/* = QString()*/) const
 {
-    auto object = mDocument->currentObject();
-    QVariant property = object->property(QStringLiteral("triggerEvent"));
-    if(property.isNull())
-        return QStringList();
+    if(defTriggerEvent.isEmpty())
+    {
+        auto object = mDocument->currentObject();
+        QVariant property = object->property(QStringLiteral("triggerEvent"));
+        if(property.isNull())
+            return QStringList();
+
+        defTriggerEvent = property.toString();
+    }
 
     QStringList pathList;
-    pathList.append(property.toString().replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
-    pathList.append(property.toString().replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
+    pathList.append(QString(defTriggerEvent).replace(QLatin1Char('.'), QLatin1Char('/'))+QStringLiteral(".lua"));
+    pathList.append(QString(defTriggerEvent).replace(QLatin1Char('.'), QStringLiteral("/Scripts/"))+QStringLiteral(".sc"));
 
     return pathList;
 };
@@ -163,44 +205,47 @@ void ScriptDock::refreshScript()
     currentObjectChanged(mDocument->currentObject());
 }
 
-void ScriptDock::openScript()
+void ScriptDock::openScript(const QString& eventTriggerPath)
 {
     QString projectPath = ProjectManager::instance()->project().getEventFolderPath();
+    auto FullPath = projectPath + eventTriggerPath;
+
+    bool successOpen = QDesktopServices::openUrl(QUrl(FullPath));
+    if(!successOpen)
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("Don't Have Script File"));
+        msgBox.setText(tr("Do you make and open Script File?")+QStringLiteral("\n\n")+eventTriggerPath);
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        auto ret = msgBox.exec();
+        switch (ret)
+        {
+        case QMessageBox::Ok:
+        {
+            QFile file(FullPath);
+            file.open(QIODevice::WriteOnly);
+            file.close();
+
+            QDesktopServices::openUrl(QUrl(FullPath));
+            break;
+        }
+        case QMessageBox::Cancel:
+        {
+            msgBox.close();
+            break;
+        }
+        }
+    }
+}
+
+void ScriptDock::openScripts()
+{
     QStringList scriptPathList = getEventTriggerPaths();
 
     for(auto scriptPath : scriptPathList)
     {
-        qDebug() << scriptPath;
-
-        auto FullPath = projectPath + scriptPath;
-
-        bool successOpen = QDesktopServices::openUrl(QUrl(FullPath));
-        if(!successOpen)
-        {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle(tr("Don't Have Script File"));
-            msgBox.setText(tr("Do you make and open Script File?")+QStringLiteral("\n\n")+scriptPath);
-            msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-            msgBox.setDefaultButton(QMessageBox::Ok);
-            auto ret = msgBox.exec();
-            switch (ret)
-            {
-            case QMessageBox::Ok:
-            {
-                QFile file(FullPath);
-                file.open(QIODevice::WriteOnly);
-                file.close();
-
-                QDesktopServices::openUrl(QUrl(FullPath));
-                break;
-            }
-            case QMessageBox::Cancel:
-            {
-                msgBox.close();
-                break;
-            }
-            }
-        }
+        openScript(scriptPath);
     }
 }
 

@@ -4613,6 +4613,18 @@ Please select specific format.</source>
         <source>triggerEvent</source>
         <translation>트리거 이벤트</translation>
     </message>
+    <message>
+        <source>Don't Have Script File</source>
+        <translation>스크립트 파일 없음</translation>
+    </message>
+    <message>
+        <source>Do you make and open Script File?</source>
+        <translation>스크립트 파일 생성 및 오픈 하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>load additional eventTrigger</source>
+        <translation>추가적인 eventTrigger 로드하기</translation>
+    </message>
 </context>
 <context>
     <name>Tiled::NewMapDialog</name>
@@ -5103,14 +5115,6 @@ Please select specific format.</source>
         <location line="+3"/>
         <source>Remove Property</source>
         <translation type="unfinished">속성 삭제</translation>
-    </message>
-    <message>
-        <source>Don't Have Script File</source>
-        <translation>스크립트 파일 없음</translation>
-    </message>
-    <message>
-        <source>Do you make and open Script File?</source>
-        <translation>스크립트 파일 생성 및 오픈 하시겠습니까?</translation>
     </message>
 </context>
 <context>
